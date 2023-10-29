@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ile można wydać tabletek</title>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/pl.js"></script>
+    <script>
+      dayjs.locale('pl');
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.7/dist/tailwind.min.css"
+    />
+  </head>
+  <body class="bg-green-50 py-4">
+    <div class="container mx-auto">
+      <table class="table-auto w-full bg-green-300 shadow-md rounded my-6">
+        <thead>
+          <tr>
+            <th class="px-2 py-1"></th>
+            <th class="px-2 py-1">Kiedy może przyjść</th>
+            <th class="px-2 py-1">Ile tabletek<br />kupuje pacjent</th>
+          </tr>
+          <tr>
+            <td class="px-2 py-1">Dziś</td>
+            <td class="px-2 py-1" id="calendarCell">
+              <input
+                type="text"
+                id="calendarInput"
+                class="w-full px-2 py-1 focus:outline-none focus:ring focus:border-green-100"
+              />
+            </td>
+            <td class="px-2 py-1"></td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="px-2 py-1">Dziś + 22</td>
+            <td class="px-2 py-1" id="dateCell0"></td>
+            <td class="px-2 py-1" id="tabletsCell0"></td>
+          </tr>
+          <!-- Dodaj kolejne wiersze podobnie -->
+        </tbody>
+      </table>
+    </div>
+    <div class="container mx-auto">
+      <form id="userDaysForm">
+        <label for="userDaysInput" class="px-2 py-1"
+          >Ile tabletek chce kupić pacjent?</label
+        >
+        <input
+          id="userDaysInput"
+          type="number"
+          value="30"
+          class="px-2 py-1 w-20"
+        />
+        <button
+          id="userDaysBaton"
+          type="submit"
+          class="px-2 py-1 bg-green-300 shadow-md rounded my-6"
+        >
+          Ok
+        </button>
+        <div id="userDaysAnsware" class="px-2 py-1"></div>
+      </form>
+    </div>
+    <div class="w-full text-center text-xs my-4">&copy;Wachcio 2023</div>
+    <script>
+      const calendarInput = document.getElementById('calendarInput');
+      const dateCell0 = document.getElementById('dateCell0');
+      const tabletsCell0 = document.getElementById('tabletsCell0');
+      const tableBody = document.querySelector('table tbody');
+      const userDaysForm = document.getElementById('userDaysForm');
+      const userDaysInput = document.getElementById('userDaysInput');
+      const userDaysBaton = document.getElementById('userDaysBaton');
+      const userDaysAnsware = document.getElementById('userDaysAnsware');
+
+      const tabletsCounts = [28, 30, 50, 56, 60, 84, 90, 100, 112, 120];
+      let calendarSelectedDate = dayjs();
+
+      //obliczanie dni
+      const daysToAdd = [];
+      tabletsCounts.map((v) => {
+        daysToAdd.push(Math.floor(v * 0.75) + 1);
+      });
+
+      // Inicjalizacja kalendarza Flatpickr w komórce "Kiedy może przyjść"
+      const flatpickrCalendar = flatpickr(calendarInput, {
+        defaultDate: 'today',
+        onChange: function (selectedDates) {
+          if (selectedDates && selectedDates.length > 0) {
+            const selectedDate = dayjs(selectedDates[0]);
+            dateCell0.textContent = selectedDate.format('YYYY-MM-DD');
+            tabletsCell0.textContent = tabletsCounts[0];
+            updateTable(selectedDate);
+            calendarSelectedDate = selectedDate;
+            userDaysAnsware.textContent = '';
+          }
+        },
+      });
+
+      // Funkcja do aktualizacji tabeli
+      function updateTable(startDate) {
+        // Wyczyść istniejące wiersze przed aktualizacją
+        tableBody.innerHTML = '';
+
+        for (let i = 0; i < daysToAdd.length; i++) {
+          const newRow = document.createElement('tr');
+          newRow.classList.add(i % 2 === 0 ? 'bg-green-200' : 'bg-green-100'); // Ustalenie kolorów wierszy
+          const col1 = document.createElement('td');
+          col1.textContent = `Dziś + ${daysToAdd[i]}`;
+          newRow.appendChild(col1);
+          const col2 = document.createElement('td');
+          const nextDate = startDate.add(daysToAdd[i], 'day');
+          col2.textContent = nextDate.format('dddd, DD MMMM YYYY');
+          newRow.appendChild(col2);
+          const col3 = document.createElement('td');
+          col3.textContent = tabletsCounts[i];
+          newRow.appendChild(col3);
+          tableBody.appendChild(newRow);
+        }
+      }
+
+      // Inicjalna aktualizacja tabeli
+      updateTable(dayjs());
+
+      //Obliczanie dni z formularza
+      userDaysForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (userDaysInput.value <= 0) {
+          userDaysInput.value = 0;
+          userDaysAnsware.textContent = 'Błędne dane';
+          return;
+        }
+
+        let pills = '';
+        if (userDaysInput.value === 1) {
+          pills = 'tabletka';
+        } else if (userDaysInput.value >= 2 && userDaysInput.value <= 4) {
+          pills = 'tabletki';
+        } else if (userDaysInput.value >= 5) {
+          pills = 'tabletek';
+        }
+
+        userDaysAnsware.textContent = `Pacjent wykupując dziś (${dayjs(
+          calendarInput.value
+        ).format('DD MMMM YYYY')}) ${
+          userDaysInput.value
+        } ${pills} po kolejne może przyjść za ${
+          Math.floor(userDaysInput.value * 0.75) + 1
+        } dni. Będzie to ${dayjs(
+          dayjs(calendarInput.value).add(
+            Math.floor(userDaysInput.value * 0.75) + 1,
+            'day'
+          )
+        ).format('dddd, DD MMMM YYYY')}`;
+      });
+    </script>
+  </body>
+</html>
