@@ -23,11 +23,6 @@
       <table class="table-auto w-full bg-green-300 shadow-md rounded my-6">
         <thead>
           <tr>
-            <th class="px-2 py-1"></th>
-            <th class="px-2 py-1">Kiedy może przyjść</th>
-            <th class="px-2 py-1">Ile tabletek<br />kupuje pacjent</th>
-          </tr>
-          <tr>
             <td class="px-2 py-1">Dziś</td>
             <td class="px-2 py-1" id="calendarCell">
               <input
@@ -37,6 +32,11 @@
               />
             </td>
             <td class="px-2 py-1"></td>
+          </tr>
+          <tr>
+            <th class="px-2 py-1">Ile tabletek<br />kupuje pacjent</th>
+            <th class="px-2 py-1">Za ile dni następne</th>
+            <th class="px-2 py-1">Kiedy może przyjść</th>
           </tr>
         </thead>
         <tbody>
@@ -58,6 +58,7 @@
           id="userDaysInput"
           type="number"
           value="30"
+          min="1"
           class="px-2 py-1 w-20"
         />
         <button
@@ -114,16 +115,16 @@
           const newRow = document.createElement('tr');
           newRow.classList.add(i % 2 === 0 ? 'bg-green-200' : 'bg-green-100'); // Ustalenie kolorów wierszy
           const col1 = document.createElement('td');
-          col1.textContent = `Dziś + ${daysToAdd[i]}`;
+          col1.textContent = tabletsCounts[i];
           newRow.appendChild(col1);
+          tableBody.appendChild(newRow);
           const col2 = document.createElement('td');
-          const nextDate = startDate.add(daysToAdd[i], 'day');
-          col2.textContent = nextDate.format('dddd, DD MMMM YYYY');
+          col2.textContent = `Dziś + ${daysToAdd[i]}`;
           newRow.appendChild(col2);
           const col3 = document.createElement('td');
-          col3.textContent = tabletsCounts[i];
+          const nextDate = startDate.add(daysToAdd[i], 'day');
+          col3.textContent = nextDate.format('dddd, DD MMMM YYYY');
           newRow.appendChild(col3);
-          tableBody.appendChild(newRow);
         }
       }
 
@@ -160,6 +161,10 @@
             'day'
           )
         ).format('dddd, DD MMMM YYYY')}`;
+      });
+
+      userDaysInput.addEventListener('change', (e) => {
+        userDaysBaton.click();
       });
     </script>
   </body>
