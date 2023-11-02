@@ -23,7 +23,7 @@
       <table class="table-auto w-full bg-green-300 shadow-md rounded my-6">
         <thead>
           <tr>
-            <td class="px-2 py-1">Dziś</td>
+            <td class="px-2 py-1 text-right">Dziś</td>
             <td class="px-2 py-1" id="calendarCell">
               <input
                 type="text"
@@ -57,7 +57,7 @@
         <input
           id="userDaysInput"
           type="number"
-          value="30"
+          value="120"
           min="1"
           class="px-2 py-1 w-20"
         />
@@ -82,13 +82,14 @@
       const userDaysBaton = document.getElementById('userDaysBaton');
       const userDaysAnsware = document.getElementById('userDaysAnsware');
 
-      const tabletsCounts = [28, 30, 50, 56, 60, 84, 90, 100, 112, 120];
+      // const tabletsCounts = [28, 30, 50, 56, 60, 84, 90, 100, 112, 120];
+      const tabletsCounts = [120];
       let calendarSelectedDate = dayjs();
 
       //obliczanie dni
       const daysToAdd = [];
       tabletsCounts.map((v) => {
-        daysToAdd.push(Math.floor(v * 0.75) + 1);
+        daysToAdd.push(Math.floor(v * 0.75));
       });
 
       // Inicjalizacja kalendarza Flatpickr w komórce "Kiedy może przyjść"
@@ -153,11 +154,11 @@
           calendarInput.value
         ).format('DD MMMM YYYY')}) ${
           userDaysInput.value
-        } ${pills} po kolejne może przyjść za ${
-          Math.floor(userDaysInput.value * 0.75) + 1
-        } dni. Będzie to ${dayjs(
+        } ${pills} po kolejne może przyjść za ${Math.floor(
+          userDaysInput.value * 0.75
+        )} dni. Będzie to ${dayjs(
           dayjs(calendarInput.value).add(
-            Math.floor(userDaysInput.value * 0.75) + 1,
+            Math.floor(userDaysInput.value * 0.75),
             'day'
           )
         ).format('dddd, DD MMMM YYYY')}`;
